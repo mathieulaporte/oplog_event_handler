@@ -48,5 +48,6 @@ class MyEventHandler
   end
 
 end
+MyEventHandler.mapping
 
-MyEventHandler.new.run
+# MyEventHandler.new.run

@@ -49,4 +49,28 @@ describe "OplogEventHandler" do
   end
 
 
+  context "when i instantiate 2 events handlers" do
+
+    before do
+      class A
+        include OplogEventHandler
+        for_db :test1 do
+          on_insert :in => :users, :call => :test_user
+        end
+      end
+      class B
+        include OplogEventHandler
+        for_db :test do
+          on_insert :in => :subjects, :call => :test_user2
+        end
+      end
+    end
+
+    subject { A.mapping == B.mapping }
+
+    it { should be_false }
+
+  end
+
+
 end

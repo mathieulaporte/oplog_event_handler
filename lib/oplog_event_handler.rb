@@ -13,7 +13,6 @@ module OplogEventHandler
       'c' => :dbcmd,
       'n' => :noop
     }
-  @@mapping = {}
 
   module ClassMethods
 
@@ -21,31 +20,35 @@ module OplogEventHandler
       OplogEventHandler::CONFIG[:connection] = h
     end
 
-    def for_db(db_name)
-      @@db_name = db_name
+    def db_name
+      @db_name
+    end
+
+    def for_db(db)
+      @db_name = db
       yield
     end
 
+    def mapping
+      return @mapping ||= {}
+    end
+
     def on_insert(opts)
-      self.class_eval("@@mapping[:\"insert_#{@@db_name}_#{opts[:in]}\"] = opts[:call]")
+      self.class_eval("mapping[:\"insert_#{db_name}_#{opts[:in]}\"] = opts[:call]")
     end
 
     def on_update(opts)
       if opts[:only].nil?
-        self.class_eval("@@mapping[:\"update_#{@@db_name}_#{opts[:in]}\"] = opts[:call]")
+        self.class_eval("mapping[:\"update_#{db_name}_#{opts[:in]}\"] = opts[:call]")
       else
         opts[:only].each do |e|
-          self.class_eval("@@mapping[:\"update_#{@@db_name}_#{opts[:in]}##{e}\"] = opts[:call]")
+          self.class_eval("mapping[:\"update_#{db_name}_#{opts[:in]}##{e}\"] = opts[:call]")
         end
       end
     end
 
     def on_delete(opts)
-      self.class_eval("@@mapping[:\"delete_#{@@db_name}_#{opts[:in]}\"] = opts[:call]")
-    end
-
-    def mapping
-      self.class_eval("@@mapping")
+      self.class_eval("mapping[:\"delete_#{db_name}_#{opts[:in]}\"] = opts[:call]")
     end
 
   end
@@ -73,10 +76,10 @@ module OplogEventHandler
   end
 
   def get_callbaks(log)
-    callbacks = [@@mapping[:"#{extract_operation(log)}_#{extract_db_name(log)}_#{extract_collection_name(log)}"]]
+    callbacks = [self.class.mapping[:"#{extract_operation(log)}_#{extract_db_name(log)}_#{extract_collection_name(log)}"]]
     if log['op'] == 'u'
       fields(log).each do |f|
-        callbacks << @@mapping[:"#{extract_operation(log)}_#{extract_db_name(log)}_#{extract_collection_name(log)}##{f}"]
+        callbacks << self.class.mapping[:"#{extract_operation(log)}_#{extract_db_name(log)}_#{extract_collection_name(log)}##{f}"]
       end 
     end
     callbacks.compact!
