@@ -18,27 +18,18 @@ class MyEventHandler
     on_insert :in => :subjects, :call => :new_subject
     on_update :in => :subjects, :call => :update_subject
     on_update :in => :subjects, :call => :update_subject_title, :only => [:title]
-    on_update :in => :subjects, :call => :update_subject_relationships, :only => [:relationships]
     on_delete :in => :subjects, :call => :remove_subject
     
-    on_insert :in => :users, :call => :new_user
-    on_delete :in => :users, :call => :delete_task
-  end
-
-  def new_user(opts)
-    puts "there is a new taks"
+    on_insert :in => :users,    :call => :new_user
+    on_delete :in => :users,    :call => :delete_user
   end
 
   def new_subject(opts)
     puts "in callback subjects"
   end
 
-  def update_subject_relationships(opts)
-    puts "yopyopyopy il faut refaire les relationships pour le sujet #{opts[:id]}"
-  end
-
   def update_subject_title(opts)
-    puts 'YEAHA!!!'
+    puts 'updating subject title'
   end
 
   def update_subject(opts)
@@ -49,12 +40,12 @@ class MyEventHandler
     puts "i have deleted the subject #{opts['id']}"
   end
 
-  def update_users(opts)
-    # do something
+  def new_user(opts)
+    puts "there is a new user"
   end
 
-  def delete_task(opts)
-    puts "delete task"
+  def delete_users(opts)
+    # do something
   end
 
 end
