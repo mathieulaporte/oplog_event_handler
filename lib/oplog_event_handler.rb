@@ -34,21 +34,21 @@ module OplogEventHandler
     end
 
     def on_insert(opts)
-      self.class_eval("mapping[:\"insert_#{db_name}_#{opts[:in]}\"] = opts[:call]")
+      mapping[:"insert_#{db_name}_#{opts[:in]}"] = opts[:call]
     end
 
     def on_update(opts)
       if opts[:only].nil?
-        self.class_eval("mapping[:\"update_#{db_name}_#{opts[:in]}\"] = opts[:call]")
+        mapping[:"update_#{db_name}_#{opts[:in]}"] = opts[:call]
       else
         opts[:only].each do |e|
-          self.class_eval("mapping[:\"update_#{db_name}_#{opts[:in]}##{e}\"] = opts[:call]")
+          mapping[:"update_#{db_name}_#{opts[:in]}##{e}"] = opts[:call]
         end
       end
     end
 
     def on_delete(opts)
-      self.class_eval("mapping[:\"delete_#{db_name}_#{opts[:in]}\"] = opts[:call]")
+      mapping[:"delete_#{db_name}_#{opts[:in]}"] = opts[:call]
     end
 
   end
@@ -64,15 +64,30 @@ module OplogEventHandler
 
   def send_events(log, callbacks)
     callbacks.each do |callback|
-      case log['op']
-      when 'u'
-        send(callback, id: get_object_id(log), log: log)
-      when 'i'
-        send(callback, id: get_object_id(log), object: log['o'])
-      when 'd'
-        send(callback, id: get_object_id(log))
+      begin
+        case log['op']
+        when 'u'
+          send(callback, id: get_object_id(log), log: log)
+        when 'i'
+          send(callback, id: get_object_id(log), object: log['o'])
+        when 'd'
+          send(callback, id: get_object_id(log))
+        end
+      rescue Exception => e
+        puts present_error(e, callback)
       end
     end
+  end
+
+  def present_error(ex, callback)
+    """
+    =============================
+          Erorr in callback
+          #{callback}
+          #{ex.to_s}
+    =============================
+    #{ex.backtrace}
+    """
   end
 
   def get_callbaks(log)
