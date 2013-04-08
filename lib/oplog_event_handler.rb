@@ -62,6 +62,8 @@ module OplogEventHandler
     end
   end
 
+  private
+
   def send_events(log, callbacks)
     callbacks.each do |callback|
       begin
