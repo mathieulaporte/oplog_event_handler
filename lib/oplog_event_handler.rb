@@ -5,7 +5,6 @@ module OplogEventHandler
     base.extend(ClassMethods)
   end
 
-  CONFIG = {connection: {host: 'localhost', port: 27017} }
   OPERATIONS = {
       'i' => :insert,
       'u' => :update,
@@ -17,7 +16,15 @@ module OplogEventHandler
   module ClassMethods
 
     def connect_to(h)
-      OplogEventHandler::CONFIG[:connection] = h
+      @connection = h
+    end
+
+    def host
+      @connection[:host]
+    end
+
+    def port
+      @connection[:port]
     end
 
     def db_name
@@ -141,7 +148,7 @@ module OplogEventHandler
   end
 
   def tail
-    oplog_coll = Mongo::Connection.new(CONFIG[:host], CONFIG[:port])['local']['oplog.rs']
+    oplog_coll = Mongo::Connection.new(self.class.host, self.class.port)['local']['oplog.rs']
     start = oplog_coll.count
     tailable_oplog = Mongo::Cursor.new(oplog_coll, :timeout => false, :tailable => true).skip(start)
     while not tailable_oplog.closed?
