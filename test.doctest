@@ -1,4 +1,0 @@
-Gem test
->> require 'oplog_event_handler'
-=> true
-
