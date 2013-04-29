@@ -1,9 +1,18 @@
 oplog\_event\_handler
 ===================
 
+[![Code Climate](https://codeclimate.com/github/mathieulaporte/oplog_event_handler.png)](https://codeclimate.com/github/mathieulaporte/oplog_event_handler)
+
 A very simple way to cath event in mongodb
 
 First you need to run mongo using replicaset mod
+
+Install
+-------
+```
+gem install oplog_event_handler
+```
+
 
 Example
 -------
