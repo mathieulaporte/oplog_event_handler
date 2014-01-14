@@ -31,6 +31,14 @@ module OplogEventHandler
       @db_name
     end
 
+    def set_oplog_name(name)
+      @oplog_name = name
+    end
+
+    def oplog_name
+      @oplog_name || 'oplog.rs'
+    end
+
     def for_db(db)
       @db_name = db
       yield
@@ -148,7 +156,7 @@ module OplogEventHandler
   end
 
   def tail
-    oplog_coll = Mongo::Connection.new(self.class.host, self.class.port)['local']['oplog.rs']
+    oplog_coll = Mongo::Connection.new(self.class.host, self.class.port)['local'][self.class.oplog_name]
     start = oplog_coll.count
     tailable_oplog = Mongo::Cursor.new(oplog_coll, :timeout => false, :tailable => true).skip(start)
     while not tailable_oplog.closed?
