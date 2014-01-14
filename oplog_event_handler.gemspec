@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name        = 'oplog_event_handler'
-  s.version     = '0.0.1'
-  s.date        = '2013-04-18'
+  s.version     = '0.0.2'
+  s.date        = '2014-01-14'
   s.summary     = "oplog parser"
   s.description = "Just parse the oplog"
   s.authors     = ["Mathieu Laporte"]
